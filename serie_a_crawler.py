@@ -86,6 +86,7 @@ class SerieACrawler:
         self.player_minutes = []
         self.players_master = {}  # Dictionary to store unique player details
         self.processed_matches = set()  # Track processed matches to avoid duplicates
+        self.skipped_matches = []  # Track matches without lineup data (postponed/future)
 
     def get_team_matches(self, team_id: int, page: int = 0) -> List[Dict]:
         """
@@ -115,13 +116,19 @@ class SerieACrawler:
             match_id: The match event ID
 
         Returns:
-            Dictionary containing lineup data
+            Dictionary containing lineup data, or None if match not played yet (404)
         """
         url = f"{self.base_url}/event/{match_id}/lineups"
         try:
             response = requests.get(url, headers=self.headers, timeout=10)
             response.raise_for_status()
             return response.json()
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                # Match exists but lineups not available (postponed/future match)
+                return None
+            print(f"HTTP error fetching lineups for match {match_id}: {e}")
+            return {}
         except requests.exceptions.RequestException as e:
             print(f"Error fetching lineups for match {match_id}: {e}")
             return {}
@@ -324,11 +331,31 @@ class SerieACrawler:
                         home_team = match.get('homeTeam', {}).get('name', 'Unknown')
                         away_team = match.get('awayTeam', {}).get('name', 'Unknown')
 
-                        print(f"  Match {team_serie_a_matches}: {home_team} vs {away_team} ({match_date})")
+                        print(f"  Match {team_serie_a_matches}: {home_team} vs {away_team} ({match_date})", end="")
 
                         lineups = self.get_match_lineups(match_id)
-                        player_data = self.extract_player_minutes(lineups, match, team_id)
-                        self.player_minutes.extend(player_data)
+
+                        if lineups is None:
+                            # Match exists but lineups not available (404 - not played yet or postponed)
+                            print(" - ⏸️  Skipped (no lineup data - postponed/not played)")
+                            self.skipped_matches.append({
+                                'match_id': match_id,
+                                'date': match_date,
+                                'home_team': home_team,
+                                'away_team': away_team,
+                                'reason': 'No lineup data (404)'
+                            })
+                        elif not lineups:
+                            # Other error
+                            print(" - ❌ Error fetching lineups")
+                        else:
+                            # Successfully got lineups
+                            player_data = self.extract_player_minutes(lineups, match, team_id)
+                            if player_data:
+                                self.player_minutes.extend(player_data)
+                                print(" - ✅ OK")
+                            else:
+                                print(" - ⚠️  No player data extracted")
 
                         time.sleep(0.5)  # Be respectful to the API
 
@@ -348,20 +375,41 @@ class SerieACrawler:
         print("\n" + "=" * 70)
         print(f"Total unique matches processed: {len(self.processed_matches)}")
         print(f"Total player records extracted: {len(self.player_minutes)}")
+        print(f"Total matches skipped (no lineup data): {len(self.skipped_matches)}")
         print("=" * 70)
+
+        # Show skipped matches if any
+        if self.skipped_matches:
+            print(f"\n⏸️  SKIPPED MATCHES ({len(self.skipped_matches)} total):")
+            print("-" * 70)
+            for match in self.skipped_matches:
+                print(f"  {match['date']}: {match['home_team']} vs {match['away_team']}")
+                print(f"    Match ID: {match['match_id']} - {match['reason']}")
+            print("-" * 70)
+            print("NOTE: These matches might be postponed or not played yet.")
+            print("Re-run the crawler later to pick up these matches when lineups are available.")
+            print("-" * 70)
 
         # Verify match count (should be 380 for full Serie A season: 20 teams × 19 rounds × 2)
         expected_matches = 380
         match_count = len(self.processed_matches)
-        if match_count < expected_matches:
+        total_found = match_count + len(self.skipped_matches)
+
+        print(f"\nMATCH COUNT ANALYSIS:")
+        print(f"  Successfully processed: {match_count}")
+        print(f"  Skipped (no data):      {len(self.skipped_matches)}")
+        print(f"  Total found:            {total_found}")
+        print(f"  Expected (full season): {expected_matches}")
+
+        if total_found < expected_matches:
             print(f"\n⚠️  WARNING: Expected ~{expected_matches} matches for full Serie A season")
-            print(f"   Only {match_count} matches found ({expected_matches - match_count} missing)")
+            print(f"   Found {total_found} matches ({expected_matches - total_found} missing)")
             print(f"   This might indicate:")
             print(f"   - Season not yet complete")
             print(f"   - Incorrect team IDs")
-            print(f"   - Matches not yet in Sofascore database")
+            print(f"   - Missing teams from configuration")
         elif match_count >= expected_matches:
-            print(f"\n✅ Successfully collected all {match_count} Serie A matches!")
+            print(f"\n✅ Successfully collected all {match_count} Serie A matches with data!")
         print("=" * 70)
 
     def fetch_player_master_data(self):
