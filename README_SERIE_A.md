@@ -19,32 +19,41 @@ A Python crawler to fetch all **Brasileiro Serie A 2025** match data from Sofasc
 
 ## Serie A 2025 Teams (20 Teams)
 
-⚠️ **IMPORTANT**: Some team IDs need verification. If you see incorrect matches (e.g., teams from other countries), please verify the team ID manually by searching on sofascore.com and checking the URL.
+⚠️ **IMPORTANT**: The crawler now includes verified team IDs for 13 teams. Remaining teams need verification.
 
-The crawler includes all 20 teams participating in the 2025 Brasileiro Serie A:
+The crawler is configured for the **2025 Brasileirão Betano** with 18 confirmed teams (2 missing from official 20-team roster):
 
-| Team | Sofascore ID | Status |
-|------|--------------|--------|
-| Flamengo | 5981 | ✅ Verified |
-| Palmeiras | 1963 | ✅ Verified |
-| Botafogo | 1958 | ✅ Verified |
-| Corinthians | 1957 | ✅ Verified |
-| Cruzeiro | 1954 | ✅ Verified |
-| Vasco da Gama | 1974 | ✅ Verified |
-| Atlético Goianiense | 7314 | ✅ Verified |
-| São Paulo | 1951 | ⚠️ Needs verification |
-| Fortaleza | 1968 | ⚠️ Needs verification |
-| Internacional | 1961 | ⚠️ Needs verification |
-| Bahia | 1959 | ⚠️ Needs verification |
-| Atlético Mineiro | 1950 | ⚠️ Needs verification |
-| Fluminense | 1956 | ⚠️ Needs verification |
-| Grêmio | 1955 | ⚠️ Needs verification |
-| Juventude | 1963 | ⚠️ Needs verification |
-| RB Bragantino | 13354 | ⚠️ Needs verification |
-| Athletico Paranaense | 1960 | ⚠️ Needs verification |
-| Vitória | 2020 | ⚠️ Needs verification |
-| Cuiabá | 34911 | ⚠️ Needs verification |
-| Criciúma | 1966 | ⚠️ Needs verification |
+### Verified Team IDs ✅
+
+| Position | Team | Sofascore ID | Verified URL |
+|----------|------|--------------|--------------|
+| 1º | Flamengo [Campeão] | 5981 | https://www.sofascore.com/football/team/flamengo/5981 |
+| 2º | Palmeiras | 1963 | https://sofascore.com/team/football/palmeiras/1963 |
+| 3º | Cruzeiro | 1954 | Already verified |
+| 4º | Mirassol | 21982 | https://www.sofascore.com/football/team/mirassol/21982 |
+| 6º | Botafogo | 1958 | https://www.sofascore.com/team/football/botafogo/1958 |
+| 7º | Bahia | 1955 | https://www.sofascore.com/team/football/bahia/1955 |
+| 9º | Grêmio | 5926 | https://www.sofascore.com/football/team/gremio/5926 |
+| 12º | Santos | 1968 | https://www.sofascore.com/football/team/santos/1968 |
+| 13º | Corinthians | 1957 | https://sofascore.com/team/football/corinthians/1957 |
+| 14º | Vasco | 1974 | https://www.sofascore.com/team/football/vasco-da-gama/1974 |
+| 17º | Ceará | 2001 | https://www.sofascore.com/football/team/ceara/2001 |
+| 18º | Fortaleza | 2020 | https://www.sofascore.com/team/football/fortaleza/2020 |
+| 20º | Sport | 1959 | https://www.sofascore.com/football/team/sport-recife/1959 |
+
+### Needs Verification ⚠️
+
+| Position | Team | Current ID | Notes |
+|----------|------|------------|-------|
+| 5º | Fluminense | 1956 | Needs verification |
+| 8º | São Paulo | 1951 | Needs verification |
+| 10º | RB Bragantino | 13354 | Needs verification |
+| 11º | Atlético Mineiro | 1950 | Needs verification |
+| 19º | Juventude | 1963 | ⚠️ CONFLICTS with Palmeiras! Must verify |
+
+### Missing Teams
+
+2 teams from the official 20-team roster are missing. Please verify the complete 2025 Brasileirão Betano standings.
 
 **How to Verify Team IDs:**
 1. Go to [Sofascore.com](https://www.sofascore.com)
@@ -66,6 +75,15 @@ Run the Serie A crawler:
 ```bash
 python serie_a_crawler.py
 ```
+
+### Expected Match Count
+
+The crawler verifies that it's collecting the correct number of matches:
+- **Full Serie A season**: 380 matches (20 teams × 19 rounds × 2)
+- The crawler will warn if fewer matches are found, which could indicate:
+  - Season not yet complete
+  - Incorrect team IDs
+  - Missing teams from the configuration
 
 The script will:
 1. Fetch all Serie A matches from 2025 for all 20 teams
@@ -132,7 +150,24 @@ This crawler uses the unofficial Sofascore API endpoints. The data is fetched fr
 The crawler tracks processed matches to avoid duplicates when both teams in a match are from Serie A.
 
 ### Competition Filtering
-Only matches from Serie A (Brasileirão) are included. Matches from Copa do Brasil, state championships, and other competitions are automatically excluded.
+**Only matches from Brasileirão Betano (Serie A) are included.**
+
+The filter specifically excludes:
+- Copa do Brasil
+- State championships (Paulista, Carioca, Mineiro, Gaúcho, Pernambucano, Baiano, Cearense)
+- Serie B
+- Other tournaments
+
+The filter checks for:
+- Tournament name containing "Brasileiro", "Brasileirão", or "Brasileirao"
+- Tournament slug matching "brasileirao"
+- Excludes matches with state championship or cup keywords
+
+### Match Count Verification
+The crawler automatically verifies the total match count:
+- **Expected**: 380 matches for a complete Serie A season
+- **Formula**: 20 teams × 19 rounds × 2 = 380 matches
+- Displays warning if match count is below expected
 
 ### Name Normalization
 Both player names and team names are normalized:

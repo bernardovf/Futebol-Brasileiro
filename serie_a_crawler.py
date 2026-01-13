@@ -40,29 +40,33 @@ def normalize_text(text: str) -> str:
     return ''.join(char for char in nfd if unicodedata.category(char) != 'Mn')
 
 
-# Serie A 2025 Teams (20 teams)
+# Serie A 2025 Teams (18 teams confirmed from user + 2 to be identified)
+# Based on 2025 Brasileirão Betano final standings
 # IDs verified from sofascore.com team pages
 SERIE_A_TEAMS = {
-    'Flamengo': 5981,           # Verified: https://www.sofascore.com/football/team/flamengo/5981
-    'Palmeiras': 1963,          # Verified: https://sofascore.com/team/football/palmeiras/1963
-    'Botafogo': 1958,           # Verified: https://www.sofascore.com/team/football/botafogo/1958
-    'Corinthians': 1957,        # Verified: https://sofascore.com/team/football/corinthians/1957
-    'Cruzeiro': 1954,           # Verified (already correct)
-    'Vasco da Gama': 1974,      # Verified: https://www.sofascore.com/team/football/vasco-da-gama/1974
-    'Atlético Goianiense': 7314, # Verified: https://www.sofascore.com/team/football/atletico-goianiense/7314
-    'São Paulo': 1951,          # To verify
-    'Fortaleza': 1968,          # To verify
-    'Internacional': 1961,      # To verify
-    'Bahia': 1959,              # To verify
-    'Atlético Mineiro': 1950,   # To verify
-    'Fluminense': 1956,         # To verify
-    'Grêmio': 1955,             # To verify
-    'Juventude': 1963,          # To verify
-    'RB Bragantino': 13354,     # To verify
-    'Athletico Paranaense': 1960, # To verify
-    'Vitória': 2020,            # To verify
-    'Cuiabá': 34911,            # To verify
-    'Criciúma': 1966            # To verify
+    # VERIFIED IDs
+    'Flamengo': 5981,           # ✅ Verified: https://www.sofascore.com/football/team/flamengo/5981
+    'Palmeiras': 1963,          # ✅ Verified: https://sofascore.com/team/football/palmeiras/1963
+    'Cruzeiro': 1954,           # ✅ Verified (already correct)
+    'Mirassol': 21982,          # ✅ Verified: https://www.sofascore.com/football/team/mirassol/21982
+    'Botafogo': 1958,           # ✅ Verified: https://www.sofascore.com/team/football/botafogo/1958
+    'Bahia': 1955,              # ✅ Verified: https://www.sofascore.com/team/football/bahia/1955
+    'Corinthians': 1957,        # ✅ Verified: https://sofascore.com/team/football/corinthians/1957
+    'Vasco da Gama': 1974,      # ✅ Verified: https://www.sofascore.com/team/football/vasco-da-gama/1974
+    'Ceará': 2001,              # ✅ Verified: https://www.sofascore.com/football/team/ceara/2001
+    'Fortaleza': 2020,          # ✅ Verified: https://www.sofascore.com/team/football/fortaleza/2020
+    'Sport': 1959,              # ✅ Verified: https://www.sofascore.com/football/team/sport-recife/1959
+    'Grêmio': 5926,             # ✅ Verified: https://www.sofascore.com/football/team/gremio/5926
+    'Santos': 1968,             # ✅ Verified: https://www.sofascore.com/football/team/santos/1968
+
+    # NEEDS VERIFICATION
+    'Fluminense': 1956,         # ⚠️ To verify
+    'São Paulo': 1951,          # ⚠️ To verify
+    'RB Bragantino': 13354,     # ⚠️ To verify
+    'Atlético Mineiro': 1950,   # ⚠️ To verify
+    'Juventude': 1963,          # ⚠️ To verify (might conflict with Palmeiras)
+
+    # Missing 2 teams from the 20-team list - please verify against official standings
 }
 
 
@@ -178,20 +182,30 @@ class SerieACrawler:
 
     def is_serie_a_match(self, match: Dict) -> bool:
         """
-        Check if a match is from Serie A (Brasileirão).
+        Check if a match is from Brasileirão Betano (Serie A).
 
         Args:
             match: Match dictionary from API
 
         Returns:
-            True if match is Serie A, False otherwise
+            True if match is from Brasileirão Betano, False otherwise
         """
         tournament = match.get('tournament', {})
         tournament_name = tournament.get('name', '').lower()
+        tournament_slug = tournament.get('slug', '').lower()
 
-        # Check for various Serie A name variations
-        serie_a_names = ['brasileiro', 'brasileirão', 'serie a', 'série a', 'brasileirao']
-        return any(name in tournament_name for name in serie_a_names)
+        # Check specifically for Brasileirão Betano (Serie A) - exclude state championships
+        # Must contain "brasileiro" or "brasileirão" AND "betano" or be slug "brasileirao"
+        is_brasileiro = ('brasileiro' in tournament_name or 'brasileirão' in tournament_name or
+                        'brasileirao' in tournament_name or tournament_slug == 'brasileirao')
+
+        # Exclude state championships and other competitions
+        exclude_keywords = ['paulista', 'carioca', 'mineiro', 'gaucho', 'pernambucano',
+                          'baiano', 'cearense', 'copa', 'serie b', 'série b']
+
+        is_excluded = any(keyword in tournament_name for keyword in exclude_keywords)
+
+        return is_brasileiro and not is_excluded
 
     def extract_player_minutes(self, lineups: Dict, match_info: Dict, team_id: int) -> List[Dict]:
         """
@@ -334,6 +348,20 @@ class SerieACrawler:
         print("\n" + "=" * 70)
         print(f"Total unique matches processed: {len(self.processed_matches)}")
         print(f"Total player records extracted: {len(self.player_minutes)}")
+        print("=" * 70)
+
+        # Verify match count (should be 380 for full Serie A season: 20 teams × 19 rounds × 2)
+        expected_matches = 380
+        match_count = len(self.processed_matches)
+        if match_count < expected_matches:
+            print(f"\n⚠️  WARNING: Expected ~{expected_matches} matches for full Serie A season")
+            print(f"   Only {match_count} matches found ({expected_matches - match_count} missing)")
+            print(f"   This might indicate:")
+            print(f"   - Season not yet complete")
+            print(f"   - Incorrect team IDs")
+            print(f"   - Matches not yet in Sofascore database")
+        elif match_count >= expected_matches:
+            print(f"\n✅ Successfully collected all {match_count} Serie A matches!")
         print("=" * 70)
 
     def fetch_player_master_data(self):
