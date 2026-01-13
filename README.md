@@ -1,0 +1,89 @@
+# Cruzeiro Sofascore Crawler
+
+A Python crawler to fetch Cruzeiro's match data from Sofascore API for the 2025 season, including minutes played by each player in every match.
+
+## Features
+
+- Fetches all Cruzeiro matches from 2025
+- Extracts player statistics including minutes played
+- Exports data to both CSV and JSON formats
+- Provides summary statistics
+
+## Installation
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+Run the crawler:
+```bash
+python main.py
+```
+
+The script will:
+1. Fetch all Cruzeiro matches from 2025
+2. Extract player minutes for each match
+3. Generate two output files:
+   - `cruzeiro_2025_player_minutes.csv` - CSV format
+   - `cruzeiro_2025_player_minutes.json` - JSON format
+
+## Output Format
+
+The data includes the following fields for each player in each match:
+
+- `match_id`: Unique match identifier
+- `match_date`: Date of the match (YYYY-MM-DD)
+- `opponent`: Opponent team name
+- `home_away`: Whether Cruzeiro played HOME or AWAY
+- `score`: Match score
+- `result`: W (Win), D (Draw), or L (Loss)
+- `player_id`: Unique player identifier
+- `player_name`: Player's name
+- `position`: Player's position on the field
+- `minutes_played`: Minutes played in the match
+- `substitute`: Whether the player started as a substitute
+- `shirt_number`: Player's shirt number
+
+## Data Source
+
+This crawler uses the unofficial Sofascore API endpoints. The data is fetched from:
+- Team: Cruzeiro (Team ID: 1954)
+- API Base: `https://api.sofascore.com/api/v1`
+
+## API Endpoints Used
+
+- Team matches: `/team/{team_id}/events/last/{page}`
+- Match lineups: `/event/{match_id}/lineups`
+
+## Notes
+
+- The crawler includes rate limiting (0.5s delay between requests) to be respectful to the API
+- This uses an unofficial API - use at your own discretion
+- Data is fetched only for matches played in 2025
+
+## Example Output
+
+After running the crawler, you'll see a summary like:
+
+```
+Total unique players: 35
+Total matches: 15
+
+Top 10 players by total minutes played:
+ 1. Cássio                        - 1350 minutes
+ 2. William                       - 1320 minutes
+ 3. Lucas Romero                  - 1200 minutes
+...
+```
+
+## Requirements
+
+- Python 3.7+
+- requests library
+
+## License
+
+This project is for educational purposes only.
