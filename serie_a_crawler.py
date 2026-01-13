@@ -1,3 +1,19 @@
+"""
+Serie A 2025 Crawler for Sofascore Data
+
+IMPORTANT: Team IDs must be verified manually!
+-------------------------------------------
+Some team IDs in this script need verification. If you see incorrect matches
+(e.g., teams from other countries), verify the team ID by:
+
+1. Go to https://www.sofascore.com
+2. Search for the team name
+3. Check the URL: sofascore.com/team/football/{TEAM_NAME}/{TEAM_ID}
+4. Use the TEAM_ID from the URL
+
+Wrong IDs will pull data from teams in other countries with similar names!
+"""
+
 import requests
 import json
 import csv
@@ -25,27 +41,28 @@ def normalize_text(text: str) -> str:
 
 
 # Serie A 2025 Teams (20 teams)
+# IDs verified from sofascore.com team pages
 SERIE_A_TEAMS = {
-    'Botafogo': 1958,
-    'Palmeiras': 1685,
-    'Flamengo': 1953,
-    'São Paulo': 1951,
-    'Fortaleza': 1968,
-    'Internacional': 1961,
-    'Cruzeiro': 1954,
-    'Bahia': 1959,
-    'Corinthians': 1952,
-    'Atlético Mineiro': 1950,
-    'Vasco da Gama': 1957,
-    'Fluminense': 1956,
-    'Grêmio': 1955,
-    'Juventude': 1963,
-    'RB Bragantino': 13354,
-    'Athletico Paranaense': 1960,
-    'Criciúma': 1966,
-    'Vitória': 2020,
-    'Cuiabá': 34911,
-    'Atlético Goianiense': 1949
+    'Flamengo': 5981,           # Verified: https://www.sofascore.com/football/team/flamengo/5981
+    'Palmeiras': 1963,          # Verified: https://sofascore.com/team/football/palmeiras/1963
+    'Botafogo': 1958,           # Verified: https://www.sofascore.com/team/football/botafogo/1958
+    'Corinthians': 1957,        # Verified: https://sofascore.com/team/football/corinthians/1957
+    'Cruzeiro': 1954,           # Verified (already correct)
+    'Vasco da Gama': 1974,      # Verified: https://www.sofascore.com/team/football/vasco-da-gama/1974
+    'Atlético Goianiense': 7314, # Verified: https://www.sofascore.com/team/football/atletico-goianiense/7314
+    'São Paulo': 1951,          # To verify
+    'Fortaleza': 1968,          # To verify
+    'Internacional': 1961,      # To verify
+    'Bahia': 1959,              # To verify
+    'Atlético Mineiro': 1950,   # To verify
+    'Fluminense': 1956,         # To verify
+    'Grêmio': 1955,             # To verify
+    'Juventude': 1963,          # To verify
+    'RB Bragantino': 13354,     # To verify
+    'Athletico Paranaense': 1960, # To verify
+    'Vitória': 2020,            # To verify
+    'Cuiabá': 34911,            # To verify
+    'Criciúma': 1966            # To verify
 }
 
 

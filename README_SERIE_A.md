@@ -19,30 +19,39 @@ A Python crawler to fetch all **Brasileiro Serie A 2025** match data from Sofasc
 
 ## Serie A 2025 Teams (20 Teams)
 
+⚠️ **IMPORTANT**: Some team IDs need verification. If you see incorrect matches (e.g., teams from other countries), please verify the team ID manually by searching on sofascore.com and checking the URL.
+
 The crawler includes all 20 teams participating in the 2025 Brasileiro Serie A:
 
-| Team | Sofascore ID |
-|------|--------------|
-| Botafogo | 1958 |
-| Palmeiras | 1685 |
-| Flamengo | 1953 |
-| São Paulo | 1951 |
-| Fortaleza | 1968 |
-| Internacional | 1961 |
-| Cruzeiro | 1954 |
-| Bahia | 1959 |
-| Corinthians | 1952 |
-| Atlético Mineiro | 1950 |
-| Vasco da Gama | 1957 |
-| Fluminense | 1956 |
-| Grêmio | 1955 |
-| Juventude | 1963 |
-| RB Bragantino | 13354 |
-| Athletico Paranaense | 1960 |
-| Criciúma | 1966 |
-| Vitória | 2020 |
-| Cuiabá | 34911 |
-| Atlético Goianiense | 1949 |
+| Team | Sofascore ID | Status |
+|------|--------------|--------|
+| Flamengo | 5981 | ✅ Verified |
+| Palmeiras | 1963 | ✅ Verified |
+| Botafogo | 1958 | ✅ Verified |
+| Corinthians | 1957 | ✅ Verified |
+| Cruzeiro | 1954 | ✅ Verified |
+| Vasco da Gama | 1974 | ✅ Verified |
+| Atlético Goianiense | 7314 | ✅ Verified |
+| São Paulo | 1951 | ⚠️ Needs verification |
+| Fortaleza | 1968 | ⚠️ Needs verification |
+| Internacional | 1961 | ⚠️ Needs verification |
+| Bahia | 1959 | ⚠️ Needs verification |
+| Atlético Mineiro | 1950 | ⚠️ Needs verification |
+| Fluminense | 1956 | ⚠️ Needs verification |
+| Grêmio | 1955 | ⚠️ Needs verification |
+| Juventude | 1963 | ⚠️ Needs verification |
+| RB Bragantino | 13354 | ⚠️ Needs verification |
+| Athletico Paranaense | 1960 | ⚠️ Needs verification |
+| Vitória | 2020 | ⚠️ Needs verification |
+| Cuiabá | 34911 | ⚠️ Needs verification |
+| Criciúma | 1966 | ⚠️ Needs verification |
+
+**How to Verify Team IDs:**
+1. Go to [Sofascore.com](https://www.sofascore.com)
+2. Search for the team name (e.g., "Internacional Brazil")
+3. Click on the team page
+4. Check the URL: `sofascore.com/team/football/{TEAM_NAME}/{TEAM_ID}`
+5. Update the ID in `serie_a_crawler.py` if needed
 
 ## Installation
 
