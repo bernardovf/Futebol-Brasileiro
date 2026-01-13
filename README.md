@@ -1,4 +1,19 @@
-# Cruzeiro Sofascore Crawler
+# Brazilian Football Sofascore Crawlers
+
+Python crawlers to fetch Brazilian football match data from Sofascore API for the 2025 season, including minutes played by each player in every match.
+
+## Available Crawlers
+
+| Crawler | Teams | Competitions | Team Names Normalized | Output Files |
+|---------|-------|--------------|----------------------|--------------|
+| **`main.py`** | Cruzeiro only | All (Serie A, Copa do Brasil, etc.) | No | `cruzeiro_2025_*.csv/json` |
+| **`serie_a_crawler.py`** | All 20 Serie A teams | Serie A only | Yes | `serie_a_2025_*.csv/json` |
+
+For the **Serie A crawler** documentation, see **[README_SERIE_A.md](README_SERIE_A.md)**.
+
+---
+
+# Cruzeiro Sofascore Crawler (main.py)
 
 A Python crawler to fetch Cruzeiro's match data from Sofascore API for the 2025 season, including minutes played by each player in every match.
 

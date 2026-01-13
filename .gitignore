@@ -1,6 +1,9 @@
 # Output files
 cruzeiro_2025_*.csv
 cruzeiro_2025_*.json
+serie_a_2025_*.csv
+serie_a_2025_*.json
+serie_a_teams.json
 sample_*.csv
 sample_*.json
 
