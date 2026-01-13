@@ -5,7 +5,13 @@ A Python crawler to fetch Cruzeiro's match data from Sofascore API for the 2025 
 ## Features
 
 - Fetches all Cruzeiro matches from 2025
-- Extracts player statistics including minutes played
+- Extracts player statistics including minutes played for each match
+- Includes competition/tournament information for each match
+- Normalizes player names (removes accents and special characters)
+- Generates a master player table with detailed player information:
+  - Age, height, weight
+  - Nationality and position
+  - Preferred foot
 - Exports data to both CSV and JSON formats
 - Provides summary statistics
 
@@ -26,26 +32,47 @@ python main.py
 The script will:
 1. Fetch all Cruzeiro matches from 2025
 2. Extract player minutes for each match
-3. Generate two output files:
-   - `cruzeiro_2025_player_minutes.csv` - CSV format
-   - `cruzeiro_2025_player_minutes.json` - JSON format
+3. Fetch detailed player information
+4. Generate four output files:
+   - `cruzeiro_2025_player_minutes.csv` - Match data in CSV format
+   - `cruzeiro_2025_player_minutes.json` - Match data in JSON format
+   - `cruzeiro_2025_players_master.csv` - Player master table in CSV format
+   - `cruzeiro_2025_players_master.json` - Player master table in JSON format
 
 ## Output Format
 
-The data includes the following fields for each player in each match:
+### Match Data (player_minutes files)
+
+The match data includes the following fields for each player in each match:
 
 - `match_id`: Unique match identifier
 - `match_date`: Date of the match (YYYY-MM-DD)
+- `competition`: Competition/tournament name (e.g., "Brasileiro Serie A", "Copa do Brasil")
+- `competition_category`: Competition category (e.g., "Brazil")
 - `opponent`: Opponent team name
 - `home_away`: Whether Cruzeiro played HOME or AWAY
 - `score`: Match score
 - `result`: W (Win), D (Draw), or L (Loss)
 - `player_id`: Unique player identifier
-- `player_name`: Player's name
+- `player_name`: Player's name (normalized, without accents)
 - `position`: Player's position on the field
 - `minutes_played`: Minutes played in the match
 - `substitute`: Whether the player started as a substitute
 - `shirt_number`: Player's shirt number
+
+### Player Master Table (players_master files)
+
+The player master table includes the following fields for each unique player:
+
+- `player_id`: Unique player identifier
+- `player_name`: Player's name (normalized, without accents)
+- `age`: Player's age in years
+- `height`: Player's height in centimeters
+- `weight`: Player's weight in kilograms
+- `nationality`: Player's nationality
+- `position`: Primary playing position
+- `preferred_foot`: Preferred foot (Left/Right)
+- `market_value`: Market value (Note: Not available in Sofascore API, field will be empty)
 
 ## Data Source
 
@@ -57,6 +84,7 @@ This crawler uses the unofficial Sofascore API endpoints. The data is fetched fr
 
 - Team matches: `/team/{team_id}/events/last/{page}`
 - Match lineups: `/event/{match_id}/lineups`
+- Player details: `/player/{player_id}`
 
 ## Notes
 
@@ -73,11 +101,22 @@ Total unique players: 35
 Total matches: 15
 
 Top 10 players by total minutes played:
- 1. Cássio                        - 1350 minutes
+ 1. Cassio                        - 1350 minutes
  2. William                       - 1320 minutes
  3. Lucas Romero                  - 1200 minutes
 ...
+
+Fetching player details for master table...
+Successfully fetched details for 35 players
+
+Files generated:
+  - cruzeiro_2025_player_minutes.csv
+  - cruzeiro_2025_player_minutes.json
+  - cruzeiro_2025_players_master.csv
+  - cruzeiro_2025_players_master.json
 ```
+
+Note: Player names are normalized (e.g., "Cássio" becomes "Cassio")
 
 ## Requirements
 

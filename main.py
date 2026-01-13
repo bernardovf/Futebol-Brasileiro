@@ -4,6 +4,25 @@ import csv
 from datetime import datetime
 import time
 from typing import List, Dict
+import unicodedata
+
+
+def normalize_text(text: str) -> str:
+    """
+    Remove special characters and accents from text.
+
+    Args:
+        text: Text to normalize
+
+    Returns:
+        Normalized text without accents
+    """
+    if not text:
+        return text
+    # Normalize to NFD (decomposed form) and filter out combining characters
+    nfd = unicodedata.normalize('NFD', text)
+    return ''.join(char for char in nfd if unicodedata.category(char) != 'Mn')
+
 
 class CruzeiroCrawler:
     """
@@ -20,6 +39,7 @@ class CruzeiroCrawler:
         }
         self.matches_data = []
         self.player_minutes = []
+        self.players_master = {}  # Dictionary to store unique player details
 
     def get_team_matches(self, page: int = 0) -> List[Dict]:
         """
@@ -57,6 +77,45 @@ class CruzeiroCrawler:
             return response.json()
         except requests.exceptions.RequestException as e:
             print(f"Error fetching lineups for match {match_id}: {e}")
+            return {}
+
+    def get_player_details(self, player_id: int) -> Dict:
+        """
+        Fetch detailed information for a specific player.
+
+        Args:
+            player_id: The player ID
+
+        Returns:
+            Dictionary containing player details
+        """
+        url = f"{self.base_url}/player/{player_id}"
+        try:
+            response = requests.get(url, headers=self.headers, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            player = data.get('player', {})
+
+            # Calculate age from date of birth
+            age = None
+            if 'dateOfBirthTimestamp' in player:
+                birth_date = datetime.fromtimestamp(player['dateOfBirthTimestamp'])
+                today = datetime.now()
+                age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+
+            return {
+                'player_id': player.get('id'),
+                'player_name': normalize_text(player.get('name', '')),
+                'age': age,
+                'height': player.get('height'),  # in cm
+                'weight': player.get('weight'),  # in kg
+                'nationality': player.get('country', {}).get('name', ''),
+                'position': player.get('position', ''),
+                'preferred_foot': player.get('preferredFoot', ''),
+                'market_value': None  # Sofascore doesn't provide this directly
+            }
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching player details for player {player_id}: {e}")
             return {}
 
     def is_match_in_2025(self, match: Dict) -> bool:
@@ -97,6 +156,11 @@ class CruzeiroCrawler:
         home_score = match_info.get('homeScore', {}).get('current', 0)
         away_score = match_info.get('awayScore', {}).get('current', 0)
 
+        # Extract competition/tournament information
+        tournament = match_info.get('tournament', {})
+        competition_name = tournament.get('name', 'Unknown')
+        competition_category = tournament.get('category', {}).get('name', 'Unknown')
+
         # Determine if Cruzeiro was home or away
         cruzeiro_side = None
         if home_team == 'Cruzeiro' or match_info.get('homeTeam', {}).get('id') == self.team_id:
@@ -119,21 +183,29 @@ class CruzeiroCrawler:
             for player in cruzeiro_lineup['players']:
                 player_info = player.get('player', {})
                 statistics = player.get('statistics', {})
+                player_id = player_info.get('id')
+                player_name = normalize_text(player_info.get('name', ''))
 
                 players_data.append({
                     'match_id': match_id,
                     'match_date': match_date,
+                    'competition': competition_name,
+                    'competition_category': competition_category,
                     'opponent': opponent,
                     'home_away': cruzeiro_side.upper(),
                     'score': f"{home_score}-{away_score}",
                     'result': result,
-                    'player_id': player_info.get('id'),
-                    'player_name': player_info.get('name'),
+                    'player_id': player_id,
+                    'player_name': player_name,
                     'position': player.get('position', 'Unknown'),
                     'minutes_played': statistics.get('minutesPlayed', 0),
                     'substitute': player.get('substitute', False),
                     'shirt_number': player.get('shirtNumber', '')
                 })
+
+                # Track unique players for master table
+                if player_id and player_id not in self.players_master:
+                    self.players_master[player_id] = player_name
 
         return players_data
 
@@ -206,6 +278,29 @@ class CruzeiroCrawler:
         print("-" * 60)
         print(f"Total player records extracted: {len(self.player_minutes)}")
 
+    def fetch_player_master_data(self):
+        """
+        Fetch detailed information for all unique players.
+        """
+        print("\n" + "-" * 60)
+        print("Fetching player details for master table...")
+        print(f"Total unique players: {len(self.players_master)}")
+        print("-" * 60)
+
+        player_details_list = []
+
+        for idx, (player_id, player_name) in enumerate(self.players_master.items(), 1):
+            print(f"Fetching details for player {idx}/{len(self.players_master)}: {player_name}")
+            details = self.get_player_details(player_id)
+
+            if details:
+                player_details_list.append(details)
+
+            time.sleep(0.5)  # Be respectful to the API
+
+        print(f"Successfully fetched details for {len(player_details_list)} players")
+        return player_details_list
+
     def save_to_csv(self, filename: str = "cruzeiro_2025_player_minutes.csv"):
         """
         Save player minutes data to CSV file.
@@ -218,7 +313,8 @@ class CruzeiroCrawler:
             return
 
         fieldnames = [
-            'match_id', 'match_date', 'opponent', 'home_away', 'score', 'result',
+            'match_id', 'match_date', 'competition', 'competition_category',
+            'opponent', 'home_away', 'score', 'result',
             'player_id', 'player_name', 'position', 'minutes_played',
             'substitute', 'shirt_number'
         ]
@@ -245,6 +341,47 @@ class CruzeiroCrawler:
             json.dump(self.player_minutes, jsonfile, indent=2, ensure_ascii=False)
 
         print(f"Data saved to {filename}")
+
+    def save_players_master_to_csv(self, player_details: List[Dict], filename: str = "cruzeiro_2025_players_master.csv"):
+        """
+        Save player master data to CSV file.
+
+        Args:
+            player_details: List of player detail dictionaries
+            filename: Output CSV filename
+        """
+        if not player_details:
+            print("No player master data to save!")
+            return
+
+        fieldnames = [
+            'player_id', 'player_name', 'age', 'height', 'weight',
+            'nationality', 'position', 'preferred_foot', 'market_value'
+        ]
+
+        with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(player_details)
+
+        print(f"Player master data saved to {filename}")
+
+    def save_players_master_to_json(self, player_details: List[Dict], filename: str = "cruzeiro_2025_players_master.json"):
+        """
+        Save player master data to JSON file.
+
+        Args:
+            player_details: List of player detail dictionaries
+            filename: Output JSON filename
+        """
+        if not player_details:
+            print("No player master data to save!")
+            return
+
+        with open(filename, 'w', encoding='utf-8') as jsonfile:
+            json.dump(player_details, jsonfile, indent=2, ensure_ascii=False)
+
+        print(f"Player master data saved to {filename}")
 
     def print_summary(self):
         """Print a summary of the collected data."""
@@ -289,9 +426,14 @@ def main():
     # Print summary
     crawler.print_summary()
 
-    # Save data to both CSV and JSON
+    # Save match data to both CSV and JSON
     crawler.save_to_csv()
     crawler.save_to_json()
+
+    # Fetch player master data and save
+    player_details = crawler.fetch_player_master_data()
+    crawler.save_players_master_to_csv(player_details)
+    crawler.save_players_master_to_json(player_details)
 
     print("\nCrawler finished successfully!")
 

@@ -1,6 +1,8 @@
 # Output files
-*.csv
-*.json
+cruzeiro_2025_*.csv
+cruzeiro_2025_*.json
+sample_*.csv
+sample_*.json
 
 # Python
 __pycache__/
