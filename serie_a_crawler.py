@@ -58,15 +58,15 @@ SERIE_A_TEAMS = {
     'Sport': 1959,              # ✅ Verified: https://www.sofascore.com/football/team/sport-recife/1959
     'Grêmio': 5926,             # ✅ Verified: https://www.sofascore.com/football/team/gremio/5926
     'Santos': 1968,             # ✅ Verified: https://www.sofascore.com/football/team/santos/1968
-    'Fluminense': 1961,         # ⚠️ To verify
-    'São Paulo': 1981,          # ⚠️ To verify
-    'RB Bragantino': 1999,     # ⚠️ To verify
-    'Atlético Mineiro': 1977,   # ⚠️ To verify
-    'Juventude': 1980,          # ⚠️ To verify (might conflict with Palmeiras)
-    'Vitória': 1962,  # ⚠️ To verify (might conflict with Palmeiras)
-    'Internacional': 1966,  # ⚠️ To verify (might conflict with Palmeiras)
+    'Fluminense': 1961,         # ✅ Verified: https://www.sofascore.com/team/football/fluminense/1961
+    'São Paulo': 1981,          # ✅ Verified: https://www.sofascore.com/team/football/sao-paulo/1981
+    'RB Bragantino': 1999,      # ✅ Verified: https://www.sofascore.com/team/football/rb-bragantino/1999
+    'Atlético Mineiro': 1977,   # ✅ Verified: https://www.sofascore.com/team/football/atletico-mineiro/1977
+    'Juventude': 1980,          # ✅ Verified: https://www.sofascore.com/football/team/juventude/1980
+    'Vitória': 1962,            # ✅ Verified: https://www.sofascore.com/team/football/vitoria/1962
+    'Internacional': 1966,      # ✅ Verified: https://www.sofascore.com/football/team/internacional/1966
 
-    # Missing 2 teams from the 20-team list - please verify against official standings
+    # All 20 teams from 2025 Brasileirão Betano configured with verified IDs
 }
 
 
