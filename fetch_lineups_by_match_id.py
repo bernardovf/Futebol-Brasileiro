@@ -199,7 +199,35 @@ class DirectMatchFetcher:
                         'position': player.get('position', 'Unknown'),
                         'minutes_played': statistics.get('minutesPlayed', 0),
                         'substitute': player.get('substitute', False),
-                        'shirt_number': player.get('shirtNumber', '')
+                        'shirt_number': player.get('shirtNumber', ''),
+                        # Additional statistics
+                        'proposed_market_value': player_info.get('proposedMarketValueRaw', {}).get('value', None),
+                        'total_pass': statistics.get('totalPass', None),
+                        'accurate_pass': statistics.get('accuratePass', None),
+                        'total_long_balls': statistics.get('totalLongBalls', None),
+                        'accurate_long_balls': statistics.get('accurateLongBalls', None),
+                        'goal_assist': statistics.get('goalAssist', None),
+                        'accurate_own_half_passes': statistics.get('accurateOwnHalfPasses', None),
+                        'total_own_half_passes': statistics.get('totalOwnHalfPasses', None),
+                        'accurate_opposition_half_passes': statistics.get('accurateOppositionHalfPasses', None),
+                        'total_opposition_half_passes': statistics.get('totalOppositionHalfPasses', None),
+                        'total_cross': statistics.get('totalCross', None),
+                        'aerial_lost': statistics.get('aerialLost', None),
+                        'duel_lost': statistics.get('duelLost', None),
+                        'challenge_lost': statistics.get('challengeLost', None),
+                        'total_contest': statistics.get('totalContest', None),
+                        'shot_off_target': statistics.get('shotOffTarget', None),
+                        'outfielder_block': statistics.get('outfielderBlock', None),
+                        'interception_won': statistics.get('interceptionWon', None),
+                        'ball_recovery': statistics.get('ballRecovery', None),
+                        'unsuccessful_touch': statistics.get('unsuccessfulTouch', None),
+                        'fouls': statistics.get('fouls', None),
+                        'touches': statistics.get('touches', None),
+                        'rating': statistics.get('rating', None),
+                        'possession_lost_ctrl': statistics.get('possessionLostCtrl', None),
+                        'expected_goals': statistics.get('expectedGoals', None),
+                        'expected_assists': statistics.get('expectedAssists', None),
+                        'key_pass': statistics.get('keyPass', None)
                     })
 
                     # Track unique players for master table
@@ -300,7 +328,17 @@ class DirectMatchFetcher:
             'match_id', 'match_date', 'competition', 'competition_category',
             'team', 'opponent', 'home_away', 'score', 'result',
             'player_id', 'player_name', 'position', 'minutes_played',
-            'substitute', 'shirt_number'
+            'substitute', 'shirt_number',
+            # Additional statistics
+            'proposed_market_value', 'total_pass', 'accurate_pass',
+            'total_long_balls', 'accurate_long_balls', 'goal_assist',
+            'accurate_own_half_passes', 'total_own_half_passes',
+            'accurate_opposition_half_passes', 'total_opposition_half_passes',
+            'total_cross', 'aerial_lost', 'duel_lost', 'challenge_lost',
+            'total_contest', 'shot_off_target', 'outfielder_block',
+            'interception_won', 'ball_recovery', 'unsuccessful_touch',
+            'fouls', 'touches', 'rating', 'possession_lost_ctrl',
+            'expected_goals', 'expected_assists', 'key_pass'
         ]
 
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
