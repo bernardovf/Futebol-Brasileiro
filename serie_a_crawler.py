@@ -359,15 +359,11 @@ class SerieACrawler:
 
                         time.sleep(0.5)  # Be respectful to the API
 
-                # Check if we've gone past 2025
-                if any(datetime.fromtimestamp(m.get('startTimestamp', 0)).year < 2025 for m in matches):
-                    break
-
                 page += 1
                 time.sleep(0.5)
 
-                # Safety limit
-                if page > 10:
+                # Safety limit - increase to ensure we get all matches from full season
+                if page > 20:
                     break
 
             print(f"Total Serie A matches found for {team_name}: {team_serie_a_matches}")
