@@ -58,13 +58,13 @@ SERIE_A_TEAMS = {
     'Sport': 1959,              # ✅ Verified: https://www.sofascore.com/football/team/sport-recife/1959
     'Grêmio': 5926,             # ✅ Verified: https://www.sofascore.com/football/team/gremio/5926
     'Santos': 1968,             # ✅ Verified: https://www.sofascore.com/football/team/santos/1968
-
-    # NEEDS VERIFICATION
-    'Fluminense': 1956,         # ⚠️ To verify
-    'São Paulo': 1951,          # ⚠️ To verify
-    'RB Bragantino': 13354,     # ⚠️ To verify
-    'Atlético Mineiro': 1950,   # ⚠️ To verify
-    'Juventude': 1963,          # ⚠️ To verify (might conflict with Palmeiras)
+    'Fluminense': 1961,         # ⚠️ To verify
+    'São Paulo': 1981,          # ⚠️ To verify
+    'RB Bragantino': 1999,     # ⚠️ To verify
+    'Atlético Mineiro': 1977,   # ⚠️ To verify
+    'Juventude': 1980,          # ⚠️ To verify (might conflict with Palmeiras)
+    'Vitória': 1962,  # ⚠️ To verify (might conflict with Palmeiras)
+    'Internacional': 1966,  # ⚠️ To verify (might conflict with Palmeiras)
 
     # Missing 2 teams from the 20-team list - please verify against official standings
 }
